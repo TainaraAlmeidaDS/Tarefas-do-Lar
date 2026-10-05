@@ -1,0 +1,19 @@
+{
+  "appId": "com.tarefasdacasa.planner",
+  "appName": "Tarefas da Casa",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#FFF9FB"
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "native",
+      "initialViewportFitValueHint": "cover",
+      "style": "LIGHT"
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_casa",
+      "iconColor": "#E07A9B"
+    }
+  }
+}
