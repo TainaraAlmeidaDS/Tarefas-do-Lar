@@ -1,0 +1,1225 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FFF9FB">
+<title>Tarefas da Casa</title>
+<style>
+@font-face{font-family:"Cormorant Garamond";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/cormorant-garamond-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:"Cormorant Garamond";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/cormorant-garamond-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Cormorant Garamond";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/cormorant-garamond-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Cormorant Garamond";font-style:italic;font-weight:500;font-display:swap;src:url(fonts/cormorant-garamond-latin-500-italic.woff2) format("woff2")}
+@font-face{font-family:"Cormorant Garamond";font-style:italic;font-weight:600;font-display:swap;src:url(fonts/cormorant-garamond-latin-600-italic.woff2) format("woff2")}
+@font-face{font-family:"Nunito";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/nunito-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Nunito";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/nunito-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Nunito";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/nunito-latin-700-normal.woff2) format("woff2")}
+
+:root{padding-top:env(safe-area-inset-top,0px)}
+html{-webkit-tap-highlight-color:transparent}
+body{margin:0}
+[hidden]{display:none!important}
+
+/* Layout: planner de bolso em tons pastéis — uma coluna (máx. 560px), cartões brancos, cada período do dia com sua cor suave, barra inferior com o “+” ao centro */
+:root{
+  color-scheme:light;
+  --bg:#FFF9FB;          /* branco rosado */
+  --paper:#FFFFFF;       /* branco */
+  --blush:#FDE6EE;       /* rosa pastel */
+  --beige:#F5F0F8;       /* branco lilás, fundos neutros */
+  --rose:#F3A7BF;        /* rosa do botão */
+  --rose-deep:#C25C7E;   /* rosa para textos e destaques */
+  --on-rose:#5A2840;     /* texto sobre rosa */
+  --yellow:#FFF2C2;      /* amarelo pastel */
+  --yellow-deep:#A57C10;
+  --lilac:#EEE5FB;       /* lilás pastel */
+  --lilac-deep:#8467BF;
+  --sky:#DDEEFD;         /* azul pastel */
+  --sky-deep:#3F7DB8;
+  --sage:#4E9A6C;        /* verde (texto/ícone) */
+  --sage-soft:#DDF4E5;   /* verde pastel */
+  --ink:#4A4054;         /* texto principal, ameixa suave */
+  --muted:#8A8095;
+  --line:#F1E6EE;
+  --tick:#FFFFFF;
+  --shadow:0 1px 2px rgba(190,120,150,.06), 0 8px 22px rgba(190,120,150,.09);
+  --scrim:rgba(90,60,90,.28);
+  --f-display:"Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --f-body:"Nunito", "Segoe UI", system-ui, sans-serif;
+  --r-card:20px; --r-sm:14px;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:18px calc(110px + env(safe-area-inset-bottom,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
+.app{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{text-wrap:balance}
+
+/* Cabeçalhos */
+.hello h1{font-family:var(--f-display);font-weight:600;font-size:clamp(29px,7.4vw,36px);line-height:1.08;margin:0;letter-spacing:-.005em}
+.hello .date{margin:6px 0 0;color:var(--muted);font-size:14px;letter-spacing:.02em}
+.pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pagehead h1{font-family:var(--f-display);font-weight:600;font-size:32px;line-height:1.1;margin:0}
+.pagehead p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.eyebrow{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+
+/* Assistente */
+.assist{background:var(--lilac);border-radius:var(--r-card);padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.assist .av{flex:none;width:38px;height:38px;border-radius:50%;background:var(--paper);display:grid;place-items:center;font-size:19px}
+.assist p{margin:0;font-size:14.5px}
+.assist p b{font-weight:700}
+
+/* Períodos e cartões */
+.period{display:flex;flex-direction:column;gap:10px}
+.phead{display:flex;align-items:baseline;gap:8px;margin:2px 4px 0}
+.phead h2{font-family:var(--f-display);font-size:23px;font-weight:600;margin:0}
+.phead .n{color:var(--muted);font-size:13px}
+.cards{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--paper);border-radius:var(--r-card);box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;padding:12px 12px 12px 12px;border:1px solid transparent;transition:opacity .2s, background .2s}
+.card .emo{flex:none;width:44px;height:44px;border-radius:14px;background:var(--beige);display:grid;place-items:center;font-size:22px}
+.card .cb{flex:1;min-width:0;border:0;background:transparent;text-align:left;padding:0;display:flex;flex-direction:column;gap:2px}
+.card .nm{font-weight:700;font-size:15.5px;overflow-wrap:anywhere}
+.card .mt{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;color:var(--muted);align-items:center}
+.card .tm{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink)}
+.tag{font-size:11px;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:999px;background:var(--beige);color:var(--muted)}
+.tag.next{background:var(--sage-soft);color:var(--sage)}
+.tag.pend{background:var(--blush);color:var(--rose-deep)}
+.check{flex:none;width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--paper);display:grid;place-items:center;padding:0;transition:background .15s,border-color .15s}
+.check svg{width:16px;height:16px;color:var(--tick);opacity:0}
+.check:hover{border-color:var(--rose)}
+.card.is-next{border-color:var(--sage)}
+.card.done{background:transparent;box-shadow:none;border-color:var(--line);opacity:.62}
+.card.done .nm{text-decoration:line-through;text-decoration-color:var(--rose);font-weight:600}
+.card.done .emo{background:var(--blush);filter:grayscale(.3)}
+.card.done .check{background:var(--rose-deep);border-color:var(--rose-deep)}
+.card.done .check svg{opacity:1}
+.card.compact{padding:9px 10px;gap:10px;border-radius:14px}
+.card.compact .emo{width:34px;height:34px;border-radius:11px;font-size:17px}
+.card.compact .check{width:28px;height:28px}
+
+/* Progresso */
+.progress{background:var(--paper);border-radius:var(--r-card);box-shadow:var(--shadow);padding:18px;display:flex;gap:16px;align-items:center}
+.ring{flex:none;width:84px;height:84px}
+.ring .bgc{stroke:var(--beige)}
+.ring .fgc{stroke:var(--rose-deep);transition:stroke-dashoffset .5s ease}
+.ring text{fill:var(--ink);font-family:var(--f-display);font-weight:700;font-size:21px}
+.progress h3{font-family:var(--f-display);font-size:22px;margin:0;font-weight:600}
+.progress p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.progress .quote{margin-top:8px;font-family:var(--f-display);font-style:italic;font-size:18px;color:var(--rose-deep)}
+.bar{height:8px;border-radius:999px;background:var(--beige);overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--rose),var(--lilac-deep));border-radius:999px}
+
+/* Botões */
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:9px 16px;font-weight:700;font-size:14px}
+.btn:hover{border-color:var(--rose)}
+.btn.primary{background:var(--rose);border-color:var(--rose);color:var(--on-rose)}
+.btn.primary:hover{filter:brightness(.96)}
+.btn.soft{background:var(--blush);border-color:transparent;color:var(--rose-deep)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted);padding-inline:10px}
+.btn.danger{background:transparent;border-color:var(--line);color:var(--rose-deep)}
+.btn.sm{padding:6px 12px;font-size:13px}
+.empty{background:var(--paper);border-radius:var(--r-card);box-shadow:var(--shadow);padding:22px 18px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:10px;align-items:center}
+.empty .big{font-size:30px}
+.empty p{margin:0}
+
+/* Segmentado */
+.seg{display:inline-flex;background:var(--beige);border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;border-radius:999px;padding:6px 14px;font-weight:700;font-size:13.5px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+/* Calendário */
+.calbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.calnav{display:flex;align-items:center;gap:6px}
+.calnav strong{font-family:var(--f-display);font-size:22px;font-weight:600;min-width:0}
+.round{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;padding:0;font-size:17px;color:var(--muted)}
+.month{background:var(--paper);border-radius:var(--r-card);box-shadow:var(--shadow);padding:10px}
+.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.mgrid .wh{text-align:center;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;padding:4px 0 6px}
+.mday{border:0;background:transparent;border-radius:12px;min-height:58px;padding:5px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.mday .d{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;width:26px;height:26px;display:grid;place-items:center;border-radius:50%}
+.mday.out{opacity:.35}
+.mday.today .d{background:var(--blush);color:var(--rose-deep)}
+.mday.sel{background:var(--beige)}
+.mday .em{font-size:11px;line-height:1;letter-spacing:-1px;white-space:nowrap;overflow:hidden;max-width:100%}
+.mday .dots{display:flex;gap:2px}
+.mday .dots i{width:5px;height:5px;border-radius:50%;background:var(--rose)}
+.mday .dots i.ok{background:var(--sage)}
+.mday .dots i.ok{background:var(--sage)}
+@media (max-width:520px){.mday .em{display:none}.mday{min-height:46px}}
+.daypanel{display:flex;flex-direction:column;gap:10px}
+.daypanel h2{font-family:var(--f-display);font-size:23px;font-weight:600;margin:0 4px}
+.weekcol{display:flex;flex-direction:column;gap:12px}
+.wday{background:var(--paper);border-radius:var(--r-card);box-shadow:var(--shadow);padding:12px;display:flex;flex-direction:column;gap:8px}
+.wday.today{box-shadow:0 0 0 2px var(--blush), var(--shadow)}
+.wday header{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.wday header button{border:0;background:transparent;padding:0;font-family:var(--f-display);font-size:20px;font-weight:600;text-align:left}
+.wday header span{font-size:12.5px;color:var(--muted)}
+.wrow{display:flex;align-items:center;gap:8px;font-size:14px;min-width:0}
+.wrow .t{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12.5px;width:40px;flex:none}
+.wrow .n{flex:1;min-width:0;overflow-wrap:anywhere}
+.wrow.done .n{text-decoration:line-through;color:var(--muted)}
+.mini{flex:none;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line);background:transparent;padding:0;display:grid;place-items:center}
+.mini svg{width:11px;height:11px;color:var(--tick);opacity:0}
+.wrow.done .mini{background:var(--rose-deep);border-color:var(--rose-deep)}
+.wrow.done .mini svg{opacity:1}
+.muted{color:var(--muted)}
+
+/* Compras */
+.quickadd{display:flex;gap:8px;background:var(--paper);border-radius:var(--r-card);box-shadow:var(--shadow);padding:8px}
+.quickadd input{flex:1;min-width:0;border:0;background:transparent;padding:8px 10px;outline:none}
+.nextshop{display:flex;gap:10px;align-items:center;background:var(--sage-soft);border-radius:var(--r-sm);padding:10px 14px;font-size:14px}
+.shopsec{display:flex;flex-direction:column;gap:8px}
+.shopsec h2{font-family:var(--f-display);font-size:23px;font-weight:600;margin:4px 4px 0;display:flex;gap:8px;align-items:baseline}
+.shopsec h2 small{font-family:var(--f-body);font-size:13px;color:var(--muted);font-weight:500}
+.shoplist{background:var(--paper);border-radius:var(--r-card);box-shadow:var(--shadow);overflow:hidden}
+.sitem{display:flex;align-items:center;gap:10px;padding:11px 14px;border-top:1px solid var(--line)}
+.sitem:first-child{border-top:0}
+.sitem .sb{flex:1;min-width:0;border:0;background:transparent;text-align:left;padding:0;display:flex;flex-direction:column}
+.sitem .sn{font-weight:700;overflow-wrap:anywhere}
+.sitem .so{font-size:13px;color:var(--muted);font-style:italic;overflow-wrap:anywhere}
+.sitem.bought .sn{text-decoration:line-through;text-decoration-color:var(--sage);color:var(--muted)}
+.shead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+
+/* Suplementos */
+.supp{background:var(--paper);border-radius:var(--r-card);box-shadow:var(--shadow);padding:14px;display:flex;flex-direction:column;gap:10px}
+.supp.off{opacity:.6}
+.supp .top{display:flex;gap:12px;align-items:center}
+.supp .emo{flex:none;width:44px;height:44px;border-radius:14px;background:var(--sage-soft);display:grid;place-items:center;font-size:22px}
+.supp .info{flex:1;min-width:0;border:0;background:transparent;text-align:left;padding:0}
+.supp .nm{font-weight:700;font-size:15.5px}
+.supp .mt{font-size:13px;color:var(--muted)}
+.supp .note{font-size:13px;color:var(--muted);font-style:italic}
+.supp .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:10px;font-size:13.5px}
+.daydots{display:flex;gap:3px}
+.daydots span{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;font-weight:700;background:var(--beige);color:var(--muted)}
+.daydots span.on{background:var(--sage);color:var(--paper)}
+
+/* Interruptor */
+.sw{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;padding:0;font-size:13.5px;color:var(--ink)}
+.sw .tr{width:38px;height:22px;border-radius:999px;background:var(--line);position:relative;transition:background .15s;flex:none}
+.sw .tr::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--paper);box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s}
+.sw[aria-checked="true"] .tr{background:var(--sage)}
+.sw[aria-checked="true"] .tr::after{transform:translateX(16px)}
+
+/* Mais */
+.menu{display:flex;flex-direction:column;background:var(--paper);border-radius:var(--r-card);box-shadow:var(--shadow);overflow:hidden}
+.menu button{border:0;border-top:1px solid var(--line);background:transparent;display:flex;align-items:center;gap:14px;padding:14px 16px;text-align:left}
+.menu button:first-child{border-top:0}
+.menu .mi{width:38px;height:38px;border-radius:12px;background:var(--blush);display:grid;place-items:center;font-size:18px;flex:none}
+.menu .mtx{flex:1;min-width:0;display:flex;flex-direction:column}
+.menu .mtx b{font-weight:700}
+.menu .mtx span{font-size:13px;color:var(--muted)}
+.menu .chev{color:var(--muted)}
+.back{align-self:flex-start}
+.panel{background:var(--paper);border-radius:var(--r-card);box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:12px}
+.panel h2{font-family:var(--f-display);font-size:23px;font-weight:600;margin:0}
+.statrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.statrow div{background:var(--bg);border-radius:var(--r-sm);padding:10px 12px;display:flex;flex-direction:column}
+.statrow b{font-family:var(--f-display);font-size:28px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.statrow span{font-size:12.5px;color:var(--muted)}
+.days7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:end}
+.days7 .col{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.days7 .stk{width:100%;max-width:28px;height:70px;background:var(--beige);border-radius:8px;display:flex;align-items:flex-end;overflow:hidden}
+.days7 .stk i{display:block;width:100%;background:var(--rose);border-radius:8px}
+.days7 .stk i.full{background:var(--sage)}
+.days7 small{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.days7 .col.today small{color:var(--rose-deep)}
+.flowers{display:flex;flex-wrap:wrap;gap:6px;font-size:20px}
+.flowers span{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:var(--bg)}
+.flowers span.empty-d{font-size:12px;color:var(--muted)}
+.rlist{display:flex;flex-direction:column}
+.ritem{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.ritem:first-child{border-top:0}
+.ritem .e{font-size:20px;width:30px;text-align:center;flex:none}
+.ritem .tx{flex:1;min-width:0;border:0;background:transparent;text-align:left;padding:0;display:flex;flex-direction:column}
+.ritem .tx b{font-weight:700;overflow-wrap:anywhere}
+.ritem .tx span{font-size:12.5px;color:var(--muted)}
+
+/* Barra inferior */
+nav.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--paper);border-top:1px solid var(--line);padding:6px 8px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 20px rgba(190,120,150,.08)}
+nav.tabbar .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));align-items:end}
+nav.tabbar .tb{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0;border-radius:14px;font-size:10.5px;min-width:0;white-space:nowrap;letter-spacing:-.02em;overflow:hidden;font-weight:700;color:var(--muted)}
+nav.tabbar .tb .ic{font-size:20px;line-height:1.2;filter:grayscale(.5);opacity:.8}
+nav.tabbar .tb[aria-current="page"]{color:var(--rose-deep)}
+nav.tabbar .tb[aria-current="page"] .ic{filter:none;opacity:1}
+nav.tabbar .tb[aria-current="page"]::after{content:"";width:18px;height:3px;border-radius:3px;background:var(--rose);margin-top:2px}
+.pluswrap{display:flex;justify-content:center;align-items:flex-start;height:52px}
+.plus{margin-top:-26px;width:60px;height:60px;border-radius:50%;border:4px solid var(--bg);background:var(--rose);color:var(--on-rose);font-size:30px;line-height:1;display:grid;place-items:center;box-shadow:0 6px 18px rgba(220,120,160,.35);padding:0}
+.plus:hover{filter:brightness(.95)}
+
+/* Folha (formulários) */
+.overlay{position:fixed;inset:0;background:var(--scrim);z-index:40;display:flex;align-items:flex-end;justify-content:center;padding-top:24px}
+@media (min-width:640px){.overlay{align-items:center;padding:24px}}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:100%;overflow:auto;border-radius:24px 24px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
+@media (min-width:640px){.sheet{border-radius:24px}}
+.sheet .grab{width:42px;height:4px;border-radius:4px;background:var(--line);align-self:center;margin-top:-8px}
+.sheet h2{font-family:var(--f-display);font-size:27px;font-weight:600;margin:0}
+.fld{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fld>label,.fld>.lb{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.inp{width:100%;border:1px solid var(--line);background:var(--paper);border-radius:var(--r-sm);padding:10px 12px;min-width:0}
+.inp:focus{outline:none;border-color:var(--rose)}
+textarea.inp{resize:vertical;min-height:62px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:400px){.grid2{grid-template-columns:1fr}}
+.emobtn{width:52px;height:52px;border-radius:16px;border:1px solid var(--line);background:var(--paper);font-size:26px;padding:0;flex:none}
+.namerow{display:flex;gap:10px;align-items:flex-end}
+.namerow .fld{flex:1}
+.emogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:6px;background:var(--paper);border-radius:var(--r-sm);padding:8px;border:1px solid var(--line)}
+.emogrid button{border:0;background:transparent;font-size:22px;height:42px;border-radius:10px;padding:0}
+.emogrid button:hover,.emogrid button[aria-pressed="true"]{background:var(--blush)}
+.times{display:flex;flex-direction:column;gap:8px}
+.trow{display:flex;gap:8px;align-items:center}
+.trow .inp{flex:1}
+.trow select.inp{flex:1.3}
+.x{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--paper);color:var(--muted);padding:0;font-size:16px}
+.chipsel{display:flex;flex-wrap:wrap;gap:6px}
+.chipsel button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 12px;font-size:13.5px;font-weight:600;color:var(--muted)}
+.chipsel button[aria-pressed="true"]{background:var(--blush);border-color:var(--rose);color:var(--on-rose)}
+.chipsel.days button{width:44px;padding:6px 0}
+.actions{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.actions .r{display:flex;gap:8px;margin-left:auto}
+.err{color:var(--rose-deep);font-size:13.5px;font-weight:600}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.inline .inp{width:auto;flex:0 1 90px}
+
+/* Lembrete e avisos */
+.reminder{border-top:4px solid var(--rose);position:fixed;z-index:50;left:50%;transform:translateX(-50%);top:calc(12px + env(safe-area-inset-top,0px));width:calc(100% - 32px);max-width:440px;background:var(--paper);border-radius:20px;box-shadow:0 12px 36px rgba(150,80,120,.22);padding:14px 16px;display:flex;flex-direction:column;gap:10px;border:1px solid var(--line)}
+.reminder .rt{font-family:var(--f-display);font-size:21px;font-weight:600;margin:0}
+.reminder .rb{display:flex;gap:10px;align-items:center}
+.reminder .rb .e{font-size:24px}
+.reminder .ra{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.toast{position:fixed;z-index:45;left:50%;transform:translateX(-50%);bottom:calc(118px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:999px;font-size:14px;font-weight:600;max-width:calc(100% - 32px);text-align:center}
+.welcome{background:var(--paper);border-radius:24px;box-shadow:var(--shadow);padding:26px 22px;display:flex;flex-direction:column;gap:14px}
+.welcome h1{font-family:var(--f-display);font-size:34px;font-weight:600;margin:0;line-height:1.1}
+.welcome p{margin:0;color:var(--muted)}
+.welcome ul{margin:0;padding-left:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:14.5px}
+.welcome .acts{display:flex;gap:8px;flex-wrap:wrap}
+.loading{color:var(--muted);text-align:center;padding:40px 0;font-family:var(--f-display);font-style:italic;font-size:20px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (prefers-reduced-motion:no-preference){
+  .sheet{animation:rise .22s ease-out}
+  @keyframes rise{from{transform:translateY(20px);opacity:.6}to{transform:none;opacity:1}}
+  .reminder{border-top:4px solid var(--rose);animation:drop .25s ease-out}
+  @keyframes drop{from{transform:translate(-50%,-12px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+}
+
+/* Cores por período e áreas */
+.period.p-manha .emo{background:var(--yellow)} .period.p-tarde .emo{background:var(--sky)} .period.p-noite .emo{background:var(--lilac)} .period.p-livre .emo{background:var(--sage-soft)}
+.phead .pill{font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px}
+.p-manha .pill{background:var(--yellow);color:var(--yellow-deep)} .p-tarde .pill{background:var(--sky);color:var(--sky-deep)} .p-noite .pill{background:var(--lilac);color:var(--lilac-deep)} .p-livre .pill{background:var(--sage-soft);color:var(--sage)}
+.card.done .emo{background:var(--beige)!important}
+.hello{background:linear-gradient(135deg,var(--blush),var(--lilac) 55%,var(--sky));border-radius:24px;padding:20px 18px;position:relative;overflow:hidden}
+.hello::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:var(--yellow);opacity:.7}
+.hello h1,.hello .date{position:relative;z-index:1}
+.hello .date{color:var(--ink);opacity:.75}
+.palette{display:flex;gap:6px;margin-top:10px;position:relative;z-index:1}
+.palette i{width:10px;height:10px;border-radius:50%;border:1px solid rgba(255,255,255,.9)}
+.shopsec.s-tenho h2{color:var(--sky-deep)} .shopsec.s-preciso h2{color:var(--rose-deep)} .shopsec.s-comprei h2{color:var(--sage)}
+.shopsec.s-tenho .shoplist{border-left:0;background:var(--paper)}
+.nextshop{background:var(--yellow)}
+.menu .mi.m1{background:var(--blush)} .menu .mi.m2{background:var(--yellow)} .menu .mi.m3{background:var(--sky)} .menu .mi.m4{background:var(--lilac)}
+.statrow div:nth-child(1){background:var(--sage-soft)} .statrow div:nth-child(2){background:var(--yellow)} .statrow div:nth-child(3){background:var(--blush)}
+.welcome{background:linear-gradient(160deg,var(--paper) 40%,var(--blush))}
+.wday.today{box-shadow:0 0 0 2px var(--rose), var(--shadow)}
+
+</style></head><body>
+<div class="app" id="app"><div class="loading">Abrindo sua agenda…</div></div>
+
+<nav class="tabbar" aria-label="Navegação">
+  <div class="in">
+    <button class="tb" data-tab="inicio" type="button"><span class="ic">🏠</span>Início</button>
+    <button class="tb" data-tab="calendario" type="button"><span class="ic">📅</span>Calendário</button>
+    <div class="pluswrap"><button class="plus" id="plusBtn" type="button" aria-label="Criar nova tarefa ou evento">+</button></div>
+    <button class="tb" data-tab="compras" type="button"><span class="ic">🛒</span>Compras</button>
+    <button class="tb" data-tab="suplementos" type="button"><span class="ic">💊</span>Suplementos</button>
+    <button class="tb" data-tab="mais" type="button"><span class="ic">☰</span>Mais</button>
+  </div>
+</nav>
+<div id="sheetRoot"></div>
+<div id="remRoot"></div>
+<div id="toastRoot"></div>
+
+
+<script>
+(() => {
+"use strict";
+/* ===================== Datas ===================== */
+const pad = n => String(n).padStart(2, "0");
+const fmt = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const parse = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d, 12); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return fmt(d); };
+const today = () => fmt(new Date());
+const dow = s => parse(s).getDay();
+const diff = (a, b) => { const A = parse(a), B = parse(b); return Math.round((Date.UTC(B.getFullYear(), B.getMonth(), B.getDate()) - Date.UTC(A.getFullYear(), A.getMonth(), A.getDate())) / 864e5); };
+const daysIn = (y, m) => new Date(y, m + 1, 0).getDate();
+const mondayOf = s => addDays(s, -((dow(s) + 6) % 7));
+const ymOf = s => s.slice(0, 7);
+const monthStart = s => s.slice(0, 8) + "01";
+const addMonths = (s, n) => { const d = parse(s); return fmt(new Date(d.getFullYear(), d.getMonth() + n, 1, 12)); };
+const nowHM = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const toMin = t => { if (!t) return null; const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+const fromMin = m => `${pad(Math.floor(((m % 1440) + 1440) % 1440 / 60))}:${pad(((m % 60) + 60) % 60)}`;
+const WD = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+const WDL = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
+const WDM = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+const WDI = ["D", "S", "T", "Q", "Q", "S", "S"];
+const MO = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+const MOS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
+const cap = x => x.charAt(0).toUpperCase() + x.slice(1);
+const longDate = s => { const d = parse(s); return cap(`${WDL[d.getDay()]}, ${d.getDate()} de ${MO[d.getMonth()]}`); };
+const shortDate = s => { const d = parse(s); return `${WD[d.getDay()]}, ${d.getDate()} ${MOS[d.getMonth()]}`; };
+const br = s => { const d = parse(s); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`; };
+
+/* ===================== Conteúdo fixo ===================== */
+const DEF_CATS = [
+  { id: "casa", e: "🏠", n: "Casa" }, { id: "limpeza", e: "🧹", n: "Limpeza" }, { id: "quarto", e: "🛏️", n: "Quarto" },
+  { id: "cozinha", e: "🧊", n: "Cozinha" }, { id: "roupas", e: "👕", n: "Roupas" }, { id: "compras", e: "🛒", n: "Compras" },
+  { id: "cuidados", e: "🧴", n: "Cuidados pessoais" }, { id: "suplementos", e: "💊", n: "Suplementos" },
+  { id: "pessoal", e: "✨", n: "Rotina pessoal" }, { id: "eventos", e: "📅", n: "Eventos" },
+  { id: "compromissos", e: "🎂", n: "Compromissos" }, { id: "unicas", e: "📌", n: "Tarefas únicas" }
+];
+const EMOJIS = ["🍽️","🛏️","👕","🧺","🧹","🧽","🧼","🪣","🗑️","👗","🧊","🍳","🥗","🛒","🏠","🪟","🛁","🚿","🪴","🌷","🐾","💊","💧","🌿","🧴","💅","💇‍♀️","🧘‍♀️","🏃‍♀️","☕","📚","💼","💰","🧾","🚗","📦","🎁","🎂","📅","📌","✨","🤍"];
+const SUPP_EMOJIS = ["💊","🌿","💧","🍵","🫚","🍋","🐟","🌞","🌙","🧴","🥛","✨"];
+const QUOTES = ["Sua casa, seu cuidado. 🌷", "Mais um dia organizado. ✨", "Pequenas tarefas fazem uma grande diferença. 🤍", "Você está cuidando do seu lar. 🏡", "Um passo de cada vez, com carinho. 🌿", "Casa em ordem, mente tranquila. ☕", "Hoje também conta. Faça o que der. 🤍"];
+const PERIODS = [["manha", "☀️", "Manhã"], ["tarde", "🌤️", "Tarde"], ["noite", "🌙", "Noite"], ["livre", "🕊️", "Ao longo do dia"]];
+const FREQS = [["once", "Uma vez"], ["daily", "Diariamente"], ["weekly", "Semanalmente"], ["monthly", "Mensalmente"], ["custom", "Personalizada"]];
+const SHOP_ST = [["tenho", "🏠 Tenho em casa"], ["faltando", "Está faltando"], ["comprar", "🛒 Preciso comprar"], ["comprado", "✅ Comprei"]];
+
+/* ===================== Estado ===================== */
+const S = { tasks: [], supps: [], shop: [], settings: null, logs: {} };
+const ready = { tasks: false, supps: false, shop: false, settings: false };
+const ui = { tab: "inicio", cal: { mode: "mes", sel: today(), cur: today() }, more: "menu", interacted: false, lastDay: today() };
+const cats = () => [...DEF_CATS, ...((S.settings && S.settings.cats) || [])];
+const cat = id => cats().find(c => c.id === id) || DEF_CATS[0];
+const newId = p => (p || "x") + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const clone = o => JSON.parse(JSON.stringify(o));
+const settings = () => S.settings || {};
+
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const lsOk = () => { try { localStorage.setItem("tdc.probe", "1"); return true; } catch { return false; } };
+
+/* ===================== Armazenamento ===================== */
+function apply(n, d) {
+  if (n.startsWith("log-")) S.logs[n.slice(4)] = (d && d.done) || {};
+  else if (n === "settings") { S.settings = d || null; ready.settings = true; }
+  else { S[n] = (d && Array.isArray(d.list)) ? d.list : []; ready[n] = true; }
+  schedule();
+}
+const CAP = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() ? window.Capacitor : null;
+const NP = n => CAP && CAP.Plugins ? CAP.Plugins[n] : null;
+const store = {
+  mode: "none", db: null, base: null, subs: {}, chains: {},
+  async init() {
+    if (CAP && NP("Preferences")) {
+      this.mode = "native";
+      const P = NP("Preferences");
+      for (const n of ["tasks", "supps", "shop", "settings"]) {
+        let v = null; try { const r = await P.get({ key: "tdc." + n }); v = r && r.value ? JSON.parse(r.value) : null; } catch (e) {}
+        if (v == null) v = lsGet("tdc." + n, null);
+        apply(n, v);
+      }
+      this.ensureLogs(); return;
+    }
+    const c = window.claude;
+    if (c && typeof c.use === "function") {
+      try {
+        const [db, user] = await Promise.all([c.use("db"), c.use("user")]);
+        const uid = user ? await user.id() : null;
+        if (db && uid) {
+          this.mode = "db"; this.db = db; this.base = "data/users/" + uid;
+          ["tasks", "supps", "shop", "settings"].forEach(n => this.watch(n));
+          this.ensureLogs(); return;
+        }
+      } catch (e) {}
+    }
+    this.mode = lsOk() ? "local" : "memory";
+    ["tasks", "supps", "shop", "settings"].forEach(n => apply(n, lsGet("tdc." + n, null)));
+    this.ensureLogs();
+  },
+  watch(n) {
+    if (this.subs[n]) return;
+    this.subs[n] = this.db.doc(this.base + "/" + n).onSnapshot(s => apply(n, s.exists ? s.data() : null), () => {});
+  },
+  ensureLogs(months) {
+    const td = today();
+    const list = months || [ymOf(td), ymOf(addMonths(td, -1)), ymOf(addMonths(td, -2)), ymOf(addMonths(td, 1))];
+    for (const m of list) {
+      const n = "log-" + m; if (this.subs[n]) continue;
+      if (this.mode === "db") this.watch(n);
+      else if (this.mode === "native") { this.subs[n] = true; apply(n, null); NP("Preferences").get({ key: "tdc." + n }).then(r => { if (r && r.value) apply(n, JSON.parse(r.value)); }).catch(() => {}); }
+      else { this.subs[n] = true; apply(n, lsGet("tdc." + n, null)); }
+    }
+  },
+  save(n, body) {
+    apply(n, body);
+    if (this.mode === "db") {
+      const p = this.chains[n] || Promise.resolve();
+      this.chains[n] = p.then(() => this.db.doc(this.base + "/" + n).set(body)).catch(e => toast(e && e.code === "quota_exceeded" ? "O espaço para salvar acabou. Exclua itens antigos." : "Não consegui salvar agora. Tente de novo em instantes."));
+    } else if (this.mode === "native") {
+      const p = this.chains[n] || Promise.resolve();
+      this.chains[n] = p.then(() => NP("Preferences").set({ key: "tdc." + n, value: JSON.stringify(body) })).catch(() => toast("Não consegui salvar agora. Tente de novo."));
+      lsSet("tdc." + n, body);
+    } else if (this.mode === "local") lsSet("tdc." + n, body);
+    if (this.mode === "native") Native.reschedule();
+  }
+};
+const saveTasks = list => store.save("tasks", { list });
+const saveSupps = list => store.save("supps", { list });
+const saveShop = list => store.save("shop", { list });
+const saveSettings = patch => store.save("settings", { ...clone(settings()), ...patch });
+
+/* ===================== Recorrência ===================== */
+function taskTimes(t, D) {
+  const st = t.date || "1970-01-01";
+  if (D < st) return [];
+  const times = (t.times && t.times.length) ? t.times : [""];
+  const slotTimes = () => (t.slots || []).filter(s => s.d === dow(D)).map(s => s.t || "");
+  switch (t.freq) {
+    case "once": return D === t.date ? times : [];
+    case "daily": return times;
+    case "weekly": return slotTimes();
+    case "monthly": { const d = parse(D); return d.getDate() === Math.min(t.dom || 1, daysIn(d.getFullYear(), d.getMonth())) ? times : []; }
+    case "custom": {
+      const n = Math.max(1, t.every || 1);
+      if (t.unit === "semanas") { const w = diff(mondayOf(st), mondayOf(D)) / 7; return w % n === 0 ? slotTimes() : []; }
+      return diff(st, D) % n === 0 ? times : [];
+    }
+  }
+  return [];
+}
+function itemsFor(D) {
+  const out = [];
+  for (const t of S.tasks) {
+    if (t.paused) continue;
+    [...new Set(taskTimes(t, D))].forEach(tm => out.push({ kind: "t", id: t.id, src: t, emoji: t.emoji || "✨", name: t.name, time: tm, cat: t.cat, remind: t.remind !== false, date: D, key: `t:${t.id}:${D}:${tm || "-"}` }));
+  }
+  for (const s of S.supps) {
+    if (s.active === false || (s.start && D < s.start) || !(s.days || []).includes(dow(D))) continue;
+    out.push({ kind: "s", id: s.id, src: s, emoji: s.emoji || "💊", name: s.name, time: s.time || "", cat: "suplementos", remind: s.remind !== false, date: D, key: `s:${s.id}:${D}:${s.time || "-"}` });
+  }
+  return out.sort((a, b) => (a.time || "99:99").localeCompare(b.time || "99:99") || a.name.localeCompare(b.name));
+}
+const isDone = it => !!(S.logs[ymOf(it.date)] || {})[it.key];
+function toggle(it) {
+  const m = ymOf(it.date); store.ensureLogs([m]);
+  const map = { ...(S.logs[m] || {}) };
+  const wasDone = !!map[it.key];
+  if (wasDone) delete map[it.key]; else map[it.key] = Date.now();
+  store.save("log-" + m, { done: map });
+  if (!wasDone && it.date === today()) {
+    const items = itemsFor(it.date);
+    if (items.length && items.every(isDone)) toast("Tudo feito por hoje! Sua casa agradece. 🌷");
+  }
+}
+const period = t => { if (!t) return "livre"; const m = toMin(t); return m < 720 ? "manha" : m < 1080 ? "tarde" : "noite"; };
+const sortedSlots = sl => [...(sl || [])].sort((a, b) => WEEK_ORDER.indexOf(a.d) - WEEK_ORDER.indexOf(b.d) || (a.t || "").localeCompare(b.t || ""));
+const timesTxt = ts => (ts && ts.length) ? ts.join(", ") : "sem horário";
+const slotsTxt = sl => sortedSlots(sl).map(s => `${WDM[s.d]}${s.t ? " " + s.t : ""}`).join(" · ") || "nenhum dia escolhido";
+function freqLabel(t) {
+  switch (t.freq) {
+    case "once": return `Uma vez · ${t.date ? br(t.date) : ""}${t.times && t.times.length ? " · " + timesTxt(t.times) : ""}`;
+    case "daily": return `Todos os dias · ${timesTxt(t.times)}`;
+    case "weekly": return slotsTxt(t.slots);
+    case "monthly": return `Todo mês, dia ${t.dom} · ${timesTxt(t.times)}`;
+    case "custom": return t.unit === "semanas" ? `A cada ${t.every} semanas · ${slotsTxt(t.slots)}` : `A cada ${t.every} dias · ${timesTxt(t.times)}`;
+  }
+  return "";
+}
+function daysLabel(days) {
+  const ds = [...(days || [])].sort((a, b) => WEEK_ORDER.indexOf(a) - WEEK_ORDER.indexOf(b));
+  const k = ds.join(",");
+  if (k === "1,2,3,4,5") return "Seg a sex";
+  if (ds.length === 7) return "Todos os dias";
+  if (k === "6,0") return "Fins de semana";
+  return ds.map(d => WD[d]).join(", ") || "Nenhum dia";
+}
+function nextOccurrence(pred, from, span = 40) {
+  for (let i = 0; i <= span; i++) { const d = addDays(from, i); const it = itemsFor(d).find(pred); if (it) return it; }
+  return null;
+}
+
+/* ===================== Utilidades de interface ===================== */
+const $ = s => document.querySelector(s);
+function el(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") e.className = v; else if (k === "style") e.style.cssText = v;
+    else if (k.startsWith("on") && typeof v === "function") e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? "" : v);
+  }
+  for (const k of kids.flat(3)) if (k != null && k !== false) e.append(k.nodeType ? k : document.createTextNode(String(k)));
+  return e;
+}
+const put = (node, ...kids) => node.replaceChildren(...kids.flat(3).filter(k => k != null && k !== false));
+const svg = html => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstChild; };
+const svgCheck = () => svg('<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.2 8.6l3 2.9 6.6-7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+function sw(label, on, onchange, id) {
+  return el("button", { class: "sw", type: "button", role: "switch", id, "aria-checked": String(!!on), onclick: e => { const b = e.currentTarget; const v = b.getAttribute("aria-checked") !== "true"; b.setAttribute("aria-checked", String(v)); onchange(v); } }, el("span", { class: "tr" }), label);
+}
+let toastT;
+function toast(msg) {
+  clearTimeout(toastT);
+  $("#toastRoot").replaceChildren(el("div", { class: "toast", role: "status" }, msg));
+  toastT = setTimeout(() => $("#toastRoot").replaceChildren(), 2600);
+}
+function quoteOfDay() { const n = diff("2026-01-01", today()); return QUOTES[((n % QUOTES.length) + QUOTES.length) % QUOTES.length]; }
+
+/* ===================== Cartão de tarefa ===================== */
+function card(it, opts = {}) {
+  const done = isDone(it); const c = cat(it.cat); const td = today();
+  const late = !done && (it.date < td || (it.date === td && it.time && toMin(it.time) < toMin(nowHM())));
+  const tag = done ? el("span", { class: "tag" }, "Concluída") : opts.next ? el("span", { class: "tag next" }, "A seguir") : late ? el("span", { class: "tag pend" }, "Pendente") : null;
+  return el("div", { class: "card" + (done ? " done" : "") + (opts.next && !done ? " is-next" : "") + (opts.compact ? " compact" : "") },
+    el("span", { class: "emo", "aria-hidden": "true" }, it.emoji),
+    el("button", { class: "cb", type: "button", "aria-label": `Editar ${it.name}`, onclick: () => it.kind === "t" ? openTask(it.src) : openSupp(it.src) },
+      el("span", { class: "nm" }, it.name),
+      el("span", { class: "mt" }, it.time ? el("span", { class: "tm" }, it.time) : el("span", {}, "Sem horário"), el("span", {}, `${c.e} ${c.n}`), tag)
+    ),
+    el("button", { class: "check", type: "button", "aria-pressed": String(done), "aria-label": done ? `Desmarcar ${it.name}` : `Concluir ${it.name}`, onclick: () => toggle(it) }, svgCheck())
+  );
+}
+function periodSections(items, opts = {}) {
+  const out = [];
+  for (const [k, ic, label] of PERIODS) {
+    const arr = items.filter(i => period(i.time) === k);
+    if (!arr.length) continue;
+    out.push(el("section", { class: "period p-" + k },
+      el("div", { class: "phead" }, el("h2", {}, `${ic} ${label}`), el("span", { class: "pill" }, `${arr.filter(isDone).length} de ${arr.length}`)),
+      el("div", { class: "cards" }, arr.map(i => card(i, { next: opts.next === i.key, compact: opts.compact })))));
+  }
+  return out;
+}
+function ring(pct) {
+  const R = 34, C = 2 * Math.PI * R;
+  return svg(`<svg class="ring" viewBox="0 0 84 84" role="img" aria-label="${pct}% concluído"><circle class="bgc" cx="42" cy="42" r="${R}" fill="none" stroke-width="8"/><circle class="fgc" cx="42" cy="42" r="${R}" fill="none" stroke-width="8" stroke-linecap="round" stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${(C * (1 - pct / 100)).toFixed(2)}" transform="rotate(-90 42 42)"/><text x="42" y="49" text-anchor="middle">${pct}%</text></svg>`);
+}
+
+/* ===================== Tela: Rotina de hoje ===================== */
+function viewHome() {
+  const td = today(), items = itemsFor(td), h = new Date().getHours();
+  const greet = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+  const done = items.filter(isDone).length, pending = items.filter(i => !isDone(i));
+  const nm = toMin(nowHM());
+  const next = pending.find(i => i.time && toMin(i.time) >= nm) || null;
+  const behind = pending.filter(i => i.time && toMin(i.time) < nm).length;
+  let msg;
+  if (!items.length) msg = ["Hoje não há nada programado. Aproveite um momento só seu. 🤍"];
+  else if (!pending.length) msg = ["Tudo feito por hoje. Sua casa agradece! 🌷"];
+  else {
+    msg = ["Hoje são ", el("b", {}, String(items.length)), items.length === 1 ? " tarefa" : " tarefas", done ? `, ${done} já ${done === 1 ? "feita" : "feitas"}` : "", ". "];
+    if (next) msg.push("A próxima é ", el("b", {}, `${next.emoji} ${next.name}`), ` às ${next.time}.`);
+    if (behind) msg.push(` ${behind} ${behind === 1 ? "ficou" : "ficaram"} para trás, sem pressa.`);
+  }
+  const pct = items.length ? Math.round(done / items.length * 100) : 0;
+  return [
+    el("header", { class: "hello" }, el("h1", {}, `🌷 ${greet}, vamos cuidar da casa?`), el("p", { class: "date" }, longDate(td)),
+      el("div", { class: "palette", "aria-hidden": "true" }, ["--rose", "--yellow-deep", "--lilac-deep", "--sage", "--sky-deep"].map(v => el("i", { style: `background:var(${v});opacity:.55` })))),
+    el("div", { class: "assist" }, el("span", { class: "av", "aria-hidden": "true" }, "🏡"), el("p", {}, msg)),
+    items.length ? periodSections(items, { next: next && next.key }) :
+      el("div", { class: "empty" }, el("span", { class: "big" }, "🕊️"), el("p", {}, "Dia livre na agenda."), el("button", { class: "btn soft", type: "button", onclick: () => openTask(null) }, "+ Adicionar tarefa")),
+    items.length ? el("div", { class: "progress" }, ring(pct),
+      el("div", { style: "min-width:0" }, el("div", { class: "eyebrow" }, "✨ Progresso de hoje"), el("h3", {}, `${done} de ${items.length} ${items.length === 1 ? "tarefa concluída" : "tarefas concluídas"}`), el("p", {}, `${pct}% concluído`), el("div", { class: "quote" }, quoteOfDay()))) :
+      el("div", { class: "progress" }, el("div", { class: "quote", style: "margin:0" }, quoteOfDay()))
+  ];
+}
+
+/* ===================== Tela: Calendário ===================== */
+function viewCal() {
+  const c = ui.cal, td = today();
+  const seg = el("div", { class: "seg", role: "group", "aria-label": "Modo do calendário" }, [["dia", "Dia"], ["semana", "Semana"], ["mes", "Mês"]].map(([k, n]) =>
+    el("button", { type: "button", "aria-pressed": String(c.mode === k), onclick: () => { c.mode = k; if (k === "mes") c.cur = c.sel; render(); } }, n)));
+  let label, step;
+  if (c.mode === "mes") { const d = parse(c.cur); label = cap(`${MO[d.getMonth()]} ${d.getFullYear()}`); step = n => { c.cur = addMonths(c.cur, n); }; }
+  else if (c.mode === "semana") { const ws = mondayOf(c.sel), we = addDays(ws, 6), a = parse(ws), b = parse(we); label = a.getMonth() === b.getMonth() ? `${a.getDate()} a ${b.getDate()} de ${MO[b.getMonth()]}` : `${a.getDate()} ${MOS[a.getMonth()]} a ${b.getDate()} ${MOS[b.getMonth()]}`; step = n => { c.sel = addDays(c.sel, 7 * n); }; }
+  else { label = shortDate(c.sel); step = n => { c.sel = addDays(c.sel, n); }; }
+  const isNow = c.mode === "mes" ? ymOf(c.cur) === ymOf(td) : c.mode === "semana" ? mondayOf(c.sel) === mondayOf(td) : c.sel === td;
+  const bar = el("div", { class: "calbar" },
+    el("div", { class: "calnav" },
+      el("button", { class: "round", type: "button", "aria-label": "Anterior", onclick: () => { step(-1); render(); } }, "‹"),
+      el("strong", {}, label),
+      el("button", { class: "round", type: "button", "aria-label": "Próximo", onclick: () => { step(1); render(); } }, "›")),
+    isNow ? null : el("button", { class: "btn ghost sm", type: "button", onclick: () => { c.sel = td; c.cur = td; render(); } }, "Hoje"));
+
+  const out = [el("div", { class: "pagehead" }, el("div", {}, el("h1", {}, "📅 Calendário"), el("p", {}, "Suas rotinas aparecem aqui automaticamente.")), seg), bar];
+
+  if (c.mode === "mes") {
+    const first = monthStart(c.cur), d0 = parse(first);
+    const last = fmt(new Date(d0.getFullYear(), d0.getMonth(), daysIn(d0.getFullYear(), d0.getMonth()), 12));
+    store.ensureLogs([ymOf(first), ymOf(addMonths(first, -1)), ymOf(addMonths(first, 1))]);
+    const start = mondayOf(first), end = addDays(mondayOf(last), 6);
+    const cells = [];
+    for (let d = start; d <= end; d = addDays(d, 1)) {
+      const its = itemsFor(d), em = [...new Set(its.map(i => i.emoji))];
+      const allDone = its.length && its.every(isDone);
+      const p = parse(d);
+      cells.push(el("button", { type: "button", class: "mday" + (ymOf(d) !== ymOf(first) ? " out" : "") + (d === td ? " today" : "") + (d === c.sel ? " sel" : ""), "aria-label": `${longDate(d)}: ${its.length} ${its.length === 1 ? "tarefa" : "tarefas"}`, "aria-pressed": String(d === c.sel), onclick: () => { c.sel = d; render(); } },
+        el("span", { class: "d" }, p.getDate()),
+        em.length ? el("span", { class: "em", "aria-hidden": "true" }, em.slice(0, 3).join("")) : null,
+        its.length ? el("span", { class: "dots", "aria-hidden": "true" }, el("i", { class: allDone ? "ok" : "" }), its.length > 3 ? el("i", { class: allDone ? "ok" : "" }) : null) : null));
+    }
+    out.push(el("div", { class: "month" }, el("div", { class: "mgrid" }, WEEK_ORDER.map(i => el("div", { class: "wh" }, WD[i].slice(0, 3))), cells)));
+    const its = itemsFor(c.sel);
+    out.push(el("section", { class: "daypanel" },
+      el("h2", {}, longDate(c.sel)),
+      its.length ? el("div", { class: "cards" }, its.map(i => card(i, { compact: true }))) : el("div", { class: "empty" }, el("p", {}, "Nada programado. Dia livre 🤍")),
+      el("button", { class: "btn soft", type: "button", style: "align-self:flex-start", onclick: () => openTask(null, { date: c.sel }) }, "+ Adicionar neste dia")));
+  } else if (c.mode === "semana") {
+    const ws = mondayOf(c.sel);
+    store.ensureLogs([ymOf(ws), ymOf(addDays(ws, 6))]);
+    out.push(el("div", { class: "weekcol" }, Array.from({ length: 7 }, (_, i) => addDays(ws, i)).map(d => {
+      const its = itemsFor(d), dn = its.filter(isDone).length;
+      return el("div", { class: "wday" + (d === td ? " today" : "") },
+        el("header", {}, el("button", { type: "button", onclick: () => { c.sel = d; c.mode = "dia"; render(); } }, (d === td ? "Hoje · " : "") + shortDate(d)), el("span", {}, its.length ? `${dn}/${its.length}` : "")),
+        its.length ? its.map(it => el("div", { class: "wrow" + (isDone(it) ? " done" : "") },
+          el("span", { class: "t" }, it.time || "—"), el("span", { "aria-hidden": "true" }, it.emoji),
+          el("span", { class: "n" }, it.name),
+          el("button", { class: "mini", type: "button", "aria-pressed": String(isDone(it)), "aria-label": isDone(it) ? `Desmarcar ${it.name}` : `Concluir ${it.name}`, onclick: () => toggle(it) }, svgCheck()))) :
+          el("span", { class: "muted", style: "font-size:13.5px" }, "Livre"));
+    })));
+  } else {
+    store.ensureLogs([ymOf(c.sel)]);
+    const its = itemsFor(c.sel);
+    out.push(el("section", { class: "daypanel" }, el("h2", {}, longDate(c.sel))));
+    out.push(...(its.length ? periodSections(its) : [el("div", { class: "empty" }, el("span", { class: "big" }, "🕊️"), el("p", {}, "Nada programado para este dia."))]));
+    out.push(el("button", { class: "btn soft", type: "button", style: "align-self:flex-start", onclick: () => openTask(null, { date: c.sel }) }, "+ Adicionar neste dia"));
+  }
+  return out;
+}
+
+/* ===================== Tela: Compras ===================== */
+function setShop(id, patch) { saveShop(S.shop.map(x => x.id === id ? { ...x, ...patch, updated: Date.now() } : x)); }
+function viewShop() {
+  const td = today();
+  const shopTask = S.tasks.find(t => t.cat === "compras" && !t.paused);
+  const nx = shopTask ? nextOccurrence(i => i.kind === "t" && i.src.cat === "compras" && !isDone(i), td) : null;
+  const reminder = nx
+    ? el("div", { class: "nextshop" }, el("span", { "aria-hidden": "true" }, "🗓️"), el("span", { style: "flex:1;min-width:0" }, "Próxima ida às compras: ", el("b", {}, `${nx.date === td ? "hoje" : shortDate(nx.date)}${nx.time ? " · " + nx.time : ""}`)), el("button", { class: "btn ghost sm", type: "button", onclick: () => openTask(nx.src) }, "Ajustar"))
+    : el("div", { class: "nextshop" }, el("span", { style: "flex:1" }, "Quer um lembrete semanal para fazer compras?"), el("button", { class: "btn sm", type: "button", onclick: () => openTask(null, { name: "Fazer compras", emoji: "🛒", cat: "compras", freq: "weekly", slots: [{ d: 6, t: "10:00" }] }) }, "Criar lembrete"));
+
+  const add = el("form", { class: "quickadd", onsubmit: e => {
+    e.preventDefault(); const inp = $("#q-shop"); const name = inp.value.trim(); if (!name) return;
+    saveShop([...S.shop, { id: newId("p"), name, note: "", status: "comprar", updated: Date.now() }]); inp.value = ""; toast(`${name} adicionado em Preciso comprar`);
+  } }, el("input", { id: "q-shop", placeholder: "Adicionar produto…", "aria-label": "Nome do produto", autocomplete: "off", maxlength: "80" }), el("button", { class: "btn primary sm", type: "submit" }, "Adicionar"));
+
+  const row = (p, action) => el("div", { class: "sitem" + (p.status === "comprado" ? " bought" : "") },
+    el("button", { class: "sb", type: "button", onclick: () => openShopItem(p), "aria-label": `Editar ${p.name}` },
+      el("span", { class: "sn" }, p.name, p.status === "faltando" ? el("span", { class: "tag pend", style: "margin-left:8px" }, "faltando") : null),
+      p.note ? el("span", { class: "so" }, `“${p.note}”`) : null),
+    action);
+  const by = st => S.shop.filter(p => st.includes(p.status)).sort((a, b) => a.name.localeCompare(b.name));
+  const tenho = by(["tenho"]), preciso = by(["faltando", "comprar"]), comprei = by(["comprado"]);
+  const sec = (title, sub, arr, mk, extra, empty, cls) => el("section", { class: "shopsec " + (cls || "") },
+    el("div", { class: "shead" }, el("h2", {}, title, el("small", {}, arr.length ? `${arr.length} ${arr.length === 1 ? "item" : "itens"}` : "")), extra),
+    el("p", { class: "hint", style: "margin:0 4px" }, sub),
+    arr.length ? el("div", { class: "shoplist" }, arr.map(mk)) : el("div", { class: "empty", style: "padding:14px" }, el("p", {}, empty)));
+  return [
+    el("div", { class: "pagehead" }, el("div", {}, el("h1", {}, "🛒 Lista de compras"), el("p", {}, "Fica salva mesmo depois de fechar o aplicativo."))),
+    reminder, add,
+    sec("🏠 Tenho em casa", "Produtos disponíveis agora.", tenho, p => row(p, el("button", { class: "btn sm", type: "button", onclick: () => setShop(p.id, { status: "faltando" }) }, "Acabou")), null, "Nada marcado como em casa.", "s-tenho"),
+    sec("🛒 Preciso comprar", "O que está faltando ou precisa comprar.", preciso, p => row(p, el("button", { class: "btn soft sm", type: "button", onclick: () => setShop(p.id, { status: "comprado" }) }, "Comprei")), null, "Nada faltando por enquanto. 🌿", "s-preciso"),
+    sec("✅ Já comprei", "Comprados na última ida ao mercado.", comprei, p => row(p, el("button", { class: "btn sm", type: "button", onclick: () => setShop(p.id, { status: "tenho" }) }, "Guardei")),
+      comprei.length ? el("button", { class: "btn ghost sm", type: "button", onclick: () => { saveShop(S.shop.map(x => x.status === "comprado" ? { ...x, status: "tenho", updated: Date.now() } : x)); toast("Compras guardadas em Tenho em casa 🏠"); } }, "Guardar tudo em casa") : null,
+      "Os itens comprados aparecem aqui.", "s-comprei")
+  ];
+}
+
+/* ===================== Tela: Suplementos ===================== */
+function setSupp(id, patch) { saveSupps(S.supps.map(x => x.id === id ? { ...x, ...patch } : x)); }
+function viewSupps() {
+  const td = today(); const todays = itemsFor(td).filter(i => i.kind === "s");
+  const list = [...S.supps].sort((a, b) => (a.time || "99").localeCompare(b.time || "99"));
+  return [
+    el("div", { class: "pagehead" }, el("div", {}, el("h1", {}, "💊 Suplementos"), el("p", {}, "Entram sozinhos na Rotina de Hoje, nos dias e horários escolhidos.")),
+      el("button", { class: "btn primary sm", type: "button", onclick: () => openSupp(null) }, "+ Novo")),
+    list.length ? el("div", { class: "cards" }, list.map(s => {
+      const it = todays.find(i => i.id === s.id);
+      return el("div", { class: "supp" + (s.active === false ? " off" : "") },
+        el("div", { class: "top" },
+          el("span", { class: "emo", "aria-hidden": "true" }, s.emoji || "💊"),
+          el("button", { class: "info", type: "button", onclick: () => openSupp(s), "aria-label": `Editar ${s.name}` },
+            el("div", { class: "nm" }, s.name), el("div", { class: "mt" }, `${s.time || "Sem horário"} · ${daysLabel(s.days)}`), s.note ? el("div", { class: "note" }, s.note) : null),
+          it ? el("button", { class: "check" + "", type: "button", style: isDone(it) ? "background:var(--rose);border-color:var(--rose)" : "", "aria-pressed": String(isDone(it)), "aria-label": isDone(it) ? `Desmarcar ${s.name} de hoje` : `Tomei ${s.name} hoje`, onclick: () => toggle(it) }, (() => { const c = svgCheck(); if (isDone(it)) c.style.opacity = "1"; return c; })()) : null),
+        el("div", { class: "row" },
+          el("div", { class: "daydots", "aria-label": `Dias: ${daysLabel(s.days)}` }, WEEK_ORDER.map(d => el("span", { class: (s.days || []).includes(d) ? "on" : "" }, WDI[d]))),
+          el("span", { style: "flex:1" }),
+          sw("Lembrete", s.remind !== false, v => setSupp(s.id, { remind: v })),
+          sw("Ativo", s.active !== false, v => setSupp(s.id, { active: v }))));
+    })) : el("div", { class: "empty" }, el("span", { class: "big" }, "🌿"), el("p", {}, "Nenhum suplemento cadastrado."), el("button", { class: "btn soft", type: "button", onclick: () => openSupp(null) }, "+ Cadastrar suplemento"))
+  ];
+}
+
+/* ===================== Tela: Mais ===================== */
+function dayStats(d) { const its = itemsFor(d); const dn = its.filter(isDone).length; return { total: its.length, done: dn, pct: its.length ? dn / its.length : null }; }
+function streak() {
+  const st = settings().started || today(); let n = 0; const td = today();
+  const t0 = dayStats(td); if (t0.pct != null && t0.pct >= 0.8) n++;
+  for (let i = 1; i < 90; i++) {
+    const d = addDays(td, -i); if (d < st || !S.logs[ymOf(d)]) break;
+    const s = dayStats(d); if (s.pct == null) continue; if (s.pct >= 0.8) n++; else break;
+  }
+  return n;
+}
+function viewMore() {
+  const back = el("button", { class: "btn ghost back", type: "button", onclick: () => { ui.more = "menu"; render(); } }, "‹ Voltar");
+  if (ui.more === "hist") {
+    const td = today(), ws = mondayOf(td), st = settings().started || td;
+    const t = dayStats(td);
+    let wDone = 0, wPend = 0; const cols = [];
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(ws, i), s = d <= td ? dayStats(d) : null;
+      if (s) { wDone += s.done; wPend += s.total - s.done; }
+      cols.push(el("div", { class: "col" + (d === td ? " today" : "") },
+        el("div", { class: "stk", title: s && s.total ? `${s.done} de ${s.total}` : "" }, s && s.total ? el("i", { class: s.done === s.total ? "full" : "", style: `height:${Math.max(6, Math.round(s.pct * 100))}%` }) : null),
+        el("small", {}, WD[dow(d)].slice(0, 3))));
+    }
+    const wPct = wDone + wPend ? Math.round(wDone / (wDone + wPend) * 100) : 0;
+    const sk = streak();
+    const flowers = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = addDays(td, -i); const s = d >= st ? dayStats(d) : { pct: null };
+      const ok = s.pct != null && s.pct >= 0.8;
+      flowers.push(el("span", { class: ok ? "" : "empty-d", title: shortDate(d) }, ok ? "🌷" : (d < st || d === td) ? "·" : "○"));
+    }
+    return [back,
+      el("div", { class: "pagehead" }, el("h1", {}, "📊 Histórico e progresso")),
+      el("div", { class: "panel" }, el("h2", {}, "☀️ Hoje"),
+        el("div", { class: "statrow" }, el("div", {}, el("b", {}, t.done), el("span", {}, "concluídas")), el("div", {}, el("b", {}, t.total - t.done), el("span", {}, "pendentes")), el("div", {}, el("b", {}, `${t.total ? Math.round(t.done / t.total * 100) : 0}%`), el("span", {}, "concluído")))),
+      el("div", { class: "panel" }, el("h2", {}, "🌷 Esta semana"),
+        el("div", { class: "statrow" }, el("div", {}, el("b", {}, wDone), el("span", {}, "✅ concluídas")), el("div", {}, el("b", {}, wPend), el("span", {}, "⏳ pendentes")), el("div", {}, el("b", {}, `${wPct}%`), el("span", {}, "progresso"))),
+        el("div", { class: "bar", "aria-hidden": "true" }, el("i", { style: `width:${wPct}%` })),
+        el("div", { class: "days7" }, cols),
+        el("p", { class: "hint" }, "Contagem de segunda até hoje. Dias futuros ainda não entram.")),
+      el("div", { class: "panel" }, el("h2", {}, sk ? `${sk} ${sk === 1 ? "dia" : "dias seguidos"} com a rotina em dia` : "Sua sequência começa hoje"),
+        el("div", { class: "flowers" }, flowers),
+        el("p", { class: "hint" }, "Cada 🌷 é um dia com pelo menos 80% da rotina feita. Sem cobrança: amanhã é sempre um novo começo. 🤍"))
+    ];
+  }
+  if (ui.more === "rot") {
+    const groups = cats().map(c => [c, S.tasks.filter(t => (t.cat || "casa") === c.id)]).filter(([, a]) => a.length);
+    const orphan = S.tasks.filter(t => !cats().some(c => c.id === t.cat));
+    if (orphan.length) groups.push([{ e: "🏷️", n: "Sem categoria" }, orphan]);
+    return [back,
+      el("div", { class: "pagehead" }, el("div", {}, el("h1", {}, "🗓️ Minhas rotinas"), el("p", {}, "Toque para mudar dia, horário, emoji ou frequência.")), el("button", { class: "btn primary sm", type: "button", onclick: () => openTask(null) }, "+ Nova")),
+      groups.length ? groups.map(([c, arr]) => el("div", { class: "panel" }, el("h2", {}, `${c.e} ${c.n}`),
+        el("div", { class: "rlist" }, arr.map(t => el("div", { class: "ritem" },
+          el("span", { class: "e", "aria-hidden": "true" }, t.emoji || "✨"),
+          el("button", { class: "tx", type: "button", onclick: () => openTask(t) }, el("b", {}, t.name, t.paused ? " (pausada)" : ""), el("span", {}, freqLabel(t))),
+          el("span", { class: "muted", "aria-hidden": "true" }, "›")))))) : el("div", { class: "empty" }, el("p", {}, "Nenhuma rotina ainda."))
+    ];
+  }
+  if (ui.more === "cats") {
+    const custom = settings().cats || [];
+    return [back,
+      el("div", { class: "pagehead" }, el("div", {}, el("h1", {}, "🏷️ Categorias"), el("p", {}, "Organize tarefas por área da casa e da vida."))),
+      el("div", { class: "panel" }, el("h2", {}, "Nova categoria"),
+        el("form", { class: "trow", onsubmit: e => {
+          e.preventDefault(); const n = $("#c-name").value.trim(); const em = $("#c-emoji").value.trim() || "🏷️";
+          if (!n) { toast("Dê um nome para a categoria."); return; }
+          saveSettings({ cats: [...custom, { id: newId("c"), e: em, n }] }); $("#c-name").value = ""; toast(`Categoria ${n} criada`);
+        } }, el("input", { class: "inp", id: "c-emoji", placeholder: "🏷️", maxlength: "4", style: "flex:0 0 64px;text-align:center", "aria-label": "Emoji" }), el("input", { class: "inp", id: "c-name", placeholder: "Ex.: Pets, Jardim, Trabalho", maxlength: "40", "aria-label": "Nome da categoria" }), el("button", { class: "btn primary sm", type: "submit" }, "Criar"))),
+      el("div", { class: "panel" }, el("div", { class: "rlist" }, cats().map(c => {
+        const n = S.tasks.filter(t => t.cat === c.id).length + (c.id === "suplementos" ? S.supps.length : 0);
+        const isCustom = custom.some(x => x.id === c.id);
+        return el("div", { class: "ritem" }, el("span", { class: "e" }, c.e), el("div", { class: "tx" }, el("b", {}, c.n), el("span", {}, n ? `${n} ${n === 1 ? "item" : "itens"}` : "Nenhum item")),
+          isCustom ? el("button", { class: "btn danger sm", type: "button", onclick: e => {
+            const b = e.currentTarget; if (!b.dataset.arm) { b.dataset.arm = "1"; b.textContent = n ? "Remover? Itens vão para Casa" : "Confirmar"; return; }
+            saveSettings({ cats: custom.filter(x => x.id !== c.id) }); if (n) saveTasks(S.tasks.map(t => t.cat === c.id ? { ...t, cat: "casa" } : t));
+          } }, "Remover") : null);
+      })))
+    ];
+  }
+  if (ui.more === "notif") {
+    const st = settings();
+    const perm = typeof Notification === "undefined" ? "unsupported" : Notification.permission;
+    const all = [...S.tasks.map(t => ({ k: "t", o: t })), ...S.supps.map(s => ({ k: "s", o: s }))];
+    return [back,
+      el("div", { class: "pagehead" }, el("div", {}, el("h1", {}, "🔔 Lembretes"), el("p", {}, "Avisos no horário de cada tarefa."))),
+      el("div", { class: "panel" },
+        sw("Lembretes ativados", st.notif !== false, v => saveSettings({ notif: v }), "s-notif"),
+        sw("Som suave ao lembrar", st.sound !== false, v => saveSettings({ sound: v }), "s-sound"),
+        el("div", { class: "fld" }, el("span", { class: "lb" }, "Quando avisar"),
+          el("div", { class: "chipsel" }, [[0, "Na hora"], [5, "5 min antes"], [10, "10 min antes"], [15, "15 min antes"], [30, "30 min antes"]].map(([v, n]) =>
+            el("button", { type: "button", "aria-pressed": String((st.lead || 0) === v), onclick: () => saveSettings({ lead: v }) }, n)))),
+        CAP ? [
+          el("p", { class: "hint" }, "Os avisos chegam como notificação do celular, mesmo com o aplicativo fechado. Abra o app ao menos uma vez a cada 2 semanas para manter a agenda de avisos em dia."),
+          Native.perm === "granted" ? el("p", { class: "hint" }, "✓ Notificações permitidas.") : el("button", { class: "btn primary sm", type: "button", style: "align-self:flex-start", onclick: () => Native.ask() }, "Permitir notificações"),
+          Native.exact === "denied" ? el("div", { class: "fld" }, el("p", { class: "hint" }, "Para o aviso chegar no minuto certo, libere os alarmes exatos."), el("button", { class: "btn sm", type: "button", style: "align-self:flex-start", onclick: () => Native.askExact() }, "Liberar horário exato")) : null
+        ] : el("p", { class: "hint" }, "Os lembretes aparecem enquanto o Tarefas da Casa estiver aberto, mesmo numa aba no canto. Com o aplicativo fechado eles não chegam."),
+        CAP ? null : perm === "granted" ? el("p", { class: "hint" }, "✓ Notificações do sistema permitidas neste navegador.") :
+          perm === "unsupported" ? null :
+          el("button", { class: "btn sm", type: "button", style: "align-self:flex-start", onclick: async () => {
+            try { const r = await Notification.requestPermission(); toast(r === "granted" ? "Notificações permitidas 🔔" : "Este navegador não liberou notificações. Os avisos continuam dentro do aplicativo."); } catch { toast("Este navegador não liberou notificações. Os avisos continuam dentro do aplicativo."); }
+            render();
+          } }, "Tentar notificações do sistema")),
+      el("div", { class: "panel" }, el("h2", {}, "Por tarefa"),
+        all.length ? el("div", { class: "rlist" }, all.map(({ k, o }) => el("div", { class: "ritem" },
+          el("span", { class: "e" }, o.emoji || (k === "s" ? "💊" : "✨")),
+          el("div", { class: "tx" }, el("b", {}, o.name), el("span", {}, k === "s" ? `${o.time || "Sem horário"} · ${daysLabel(o.days)}` : freqLabel(o))),
+          sw("", o.remind !== false, v => k === "s" ? setSupp(o.id, { remind: v }) : saveTasks(S.tasks.map(x => x.id === o.id ? { ...x, remind: v } : x)))))) :
+          el("p", { class: "hint" }, "Nenhuma tarefa ainda."))
+    ];
+  }
+  let mi = 0;
+  const item = (k, ic, t, sub) => el("button", { type: "button", onclick: () => { ui.more = k; render(); window.scrollTo(0, 0); } }, el("span", { class: "mi m" + (++mi), "aria-hidden": "true" }, ic), el("span", { class: "mtx" }, el("b", {}, t), el("span", {}, sub)), el("span", { class: "chev", "aria-hidden": "true" }, "›"));
+  const sk = streak();
+  return [
+    el("div", { class: "pagehead" }, el("div", {}, el("h1", {}, "☰ Mais"), el("p", {}, sk ? `🌷 ${sk} ${sk === 1 ? "dia" : "dias seguidos"} com a rotina em dia` : "Ajustes e acompanhamento da sua rotina."))),
+    el("div", { class: "menu" },
+      item("hist", "📊", "Histórico e progresso", "Hoje, semana e sua sequência de dias"),
+      item("rot", "🗓️", "Minhas rotinas", `${S.tasks.length} ${S.tasks.length === 1 ? "tarefa cadastrada" : "tarefas cadastradas"}`),
+      item("cats", "🏷️", "Categorias", "Ver e criar categorias"),
+      item("notif", "🔔", "Lembretes e notificações", settings().notif === false ? "Desativados" : "Ativados"))
+  ];
+}
+
+/* ===================== Boas-vindas ===================== */
+function seedRoutine() {
+  const td = today();
+  const T = (name, emoji, cat, freq, extra) => ({ id: newId("t"), type: "tarefa", name, emoji, cat, desc: "", date: td, freq, times: [], slots: [], dom: 1, every: 2, unit: "dias", remind: true, ...extra });
+  saveTasks([
+    T("Lavar a louça", "🍽️", "cozinha", "daily", { times: ["08:00", "13:00", "19:00"] }),
+    T("Trocar roupa de cama", "🛏️", "quarto", "weekly", { slots: [{ d: 0, t: "10:00" }] }),
+    T("Lavar roupa", "👕", "roupas", "weekly", { slots: [{ d: 2, t: "09:00" }, { d: 6, t: "09:00" }] }),
+    T("Limpar a casa", "🧹", "limpeza", "weekly", { slots: [{ d: 5, t: "09:00" }] }),
+    T("Organizar o guarda-roupa", "👗", "quarto", "monthly", { dom: 15, times: ["10:00"] }),
+    T("Organizar a geladeira", "🧊", "cozinha", "monthly", { dom: 1, times: ["10:00"] }),
+    T("Fazer compras", "🛒", "compras", "weekly", { slots: [{ d: 6, t: "11:00" }] })
+  ]);
+  const P = (name, time) => ({ id: newId("s"), name, emoji: "💊", time, days: [1, 2, 3, 4, 5], note: "", remind: true, active: true, start: td });
+  saveSupps([P("Vitamina D", "08:00"), P("Ômega 3", "12:00"), P("Magnésio", "21:00")]);
+  const I = (name, status, note) => ({ id: newId("p"), name, status, note: note || "", updated: Date.now() });
+  saveShop([I("Arroz", "tenho"), I("Feijão", "tenho"), I("Leite", "comprar", "Comprar 2 caixas."), I("Sabão em pó", "faltando"), I("Papel higiênico", "comprado")]);
+  saveSettings({ cats: [], notif: true, sound: true, lead: 0, started: td });
+  toast("Sua rotina está pronta 🌷");
+}
+function viewWelcome() {
+  return [el("div", { class: "welcome" },
+    el("div", { class: "eyebrow" }, "Tarefas da Casa"),
+    el("h1", {}, "🌷 Que bom ter você aqui"),
+    el("p", {}, "Sua agenda doméstica: a rotina do dia, tarefas que se repetem sozinhas, lista de compras e suplementos. Posso começar com esta rotina:"),
+    el("ul", {},
+      el("li", {}, "🍽️ Lavar a louça · todo dia, 08:00, 13:00 e 19:00"),
+      el("li", {}, "👕 Lavar roupa · terça e sábado, 09:00"),
+      el("li", {}, "🛏️ Trocar roupa de cama · domingo, 10:00"),
+      el("li", {}, "🧹 Limpar a casa · sexta, 09:00"),
+      el("li", {}, "🛒 Fazer compras · sábado, 11:00"),
+      el("li", {}, "👗 Guarda-roupa · dia 15 · 🧊 Geladeira · dia 1"),
+      el("li", {}, "💊 Vitamina D, Ômega 3 e Magnésio · seg a sex")),
+    el("p", { class: "hint" }, "Dias e horários podem ser mudados depois, em qualquer tarefa."),
+    el("div", { class: "acts" },
+      el("button", { class: "btn primary", type: "button", onclick: e => { e.currentTarget.disabled = true; seedRoutine(); } }, "Montar minha rotina"),
+      el("button", { class: "btn", type: "button", onclick: () => saveSettings({ cats: [], notif: true, sound: true, lead: 0, started: today() }) }, "Começar do zero")))];
+}
+
+/* ===================== Folhas (formulários) ===================== */
+let sheetClose = null;
+function openSheet(title, build) {
+  const root = $("#sheetRoot"); const prev = document.activeElement;
+  const body = el("div", { style: "display:contents" });
+  const close = () => { root.replaceChildren(); document.removeEventListener("keydown", onKey); sheetClose = null; if (prev && prev.focus && document.contains(prev)) prev.focus(); };
+  const onKey = e => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", onKey);
+  const sheet = el("div", { class: "sheet", role: "dialog", "aria-modal": "true", "aria-label": title }, el("span", { class: "grab", "aria-hidden": "true" }), body);
+  root.replaceChildren(el("div", { class: "overlay", onclick: e => { if (e.target === e.currentTarget) close(); } }, sheet));
+  sheetClose = close;
+  build(body, close);
+  setTimeout(() => { const f = sheet.querySelector("input:not([type=checkbox]),textarea"); if (f && !f.value) f.focus(); }, 40);
+}
+function emojiPicker(list, current, onPick) {
+  return el("div", { class: "emogrid", role: "group", "aria-label": "Escolha um emoji" }, list.map(e => el("button", { type: "button", "aria-pressed": String(e === current), "aria-label": e, onclick: () => onPick(e) }, e)));
+}
+function delButton(label, onConfirm) {
+  return el("button", { class: "btn danger", type: "button", onclick: e => { const b = e.currentTarget; if (!b.dataset.arm) { b.dataset.arm = "1"; b.textContent = "Toque de novo para excluir"; return; } onConfirm(); } }, label);
+}
+function timeList(d, key) {
+  return el("div", { class: "times" },
+    (d[key] || []).map((t, i) => el("div", { class: "trow" },
+      el("input", { class: "inp", type: "time", id: `f-${key}-${i}`, value: t, "aria-label": `Horário ${i + 1}`, oninput: e => { d[key][i] = e.target.value; } }),
+      el("button", { class: "x", type: "button", "aria-label": "Remover horário", onclick: () => { d[key].splice(i, 1); d._draw(); } }, "×"))),
+    el("button", { class: "btn ghost sm", type: "button", style: "align-self:flex-start", onclick: () => { const l = d[key] || (d[key] = []); const last = l.length ? toMin(l[l.length - 1]) : 480; l.push(l.length ? fromMin(Math.min(last + 180, 1380)) : "09:00"); d._draw(); } }, (d[key] || []).length ? "+ Outro horário" : "+ Adicionar horário"));
+}
+function slotList(d) {
+  return el("div", { class: "times" },
+    d.slots.map((s, i) => el("div", { class: "trow" },
+      el("select", { class: "inp", id: `f-slotd-${i}`, "aria-label": `Dia ${i + 1}`, onchange: e => { s.d = Number(e.target.value); } }, WEEK_ORDER.map(w => el("option", { value: w, selected: s.d === w }, WDM[w]))),
+      el("input", { class: "inp", type: "time", id: `f-slott-${i}`, value: s.t || "", "aria-label": `Horário do dia ${i + 1}`, oninput: e => { s.t = e.target.value; } }),
+      el("button", { class: "x", type: "button", "aria-label": "Remover dia", onclick: () => { d.slots.splice(i, 1); d._draw(); } }, "×"))),
+    el("button", { class: "btn ghost sm", type: "button", style: "align-self:flex-start", onclick: () => { const used = d.slots.map(s => s.d); const nd = WEEK_ORDER.find(w => !used.includes(w)); d.slots.push({ d: nd == null ? 1 : nd, t: (d.slots[d.slots.length - 1] || {}).t || "09:00" }); d._draw(); } }, "+ Adicionar dia"));
+}
+
+function openTask(t, preset) {
+  const isNew = !t; const td = today();
+  const d = t ? clone(t) : { id: newId("t"), type: "tarefa", name: "", emoji: "✨", desc: "", cat: "casa", date: td, freq: "once", times: ["09:00"], slots: [], dom: parse(td).getDate(), every: 2, unit: "dias", remind: true, ...(preset ? clone(preset) : {}) };
+  if (!d.slots || !d.slots.length) d.slots = [{ d: dow(d.date || td), t: (d.times && d.times[0]) || "09:00" }];
+  if (!Array.isArray(d.times)) d.times = [];
+  let picker = false, newCat = null;
+  openSheet(isNew ? "Nova tarefa" : "Editar tarefa", (body, close) => {
+    const err = el("div", { class: "err", role: "alert" });
+    d._draw = draw;
+    function draw() {
+      const usesSlots = d.freq === "weekly" || (d.freq === "custom" && d.unit === "semanas");
+      put(body,
+        el("h2", {}, isNew ? (d.type === "evento" ? "Novo evento" : "Nova tarefa") : "Editar"),
+        el("div", { class: "seg", role: "group", "aria-label": "Tipo" }, [["tarefa", "Tarefa"], ["evento", "Evento"]].map(([k, n]) => el("button", { type: "button", "aria-pressed": String(d.type === k), onclick: () => {
+          d.type = k;
+          if (isNew && k === "evento") { if (d.cat === "casa") d.cat = "eventos"; if (d.emoji === "✨") d.emoji = "📅"; }
+          if (isNew && k === "tarefa") { if (d.cat === "eventos") d.cat = "casa"; if (d.emoji === "📅") d.emoji = "✨"; }
+          draw(); } }, n))),
+        el("div", { class: "namerow" },
+          el("button", { class: "emobtn", type: "button", "aria-label": `Emoji: ${d.emoji}. Trocar`, "aria-expanded": String(picker), onclick: () => { picker = !picker; draw(); } }, d.emoji),
+          el("div", { class: "fld" }, el("label", { for: "f-name" }, "Nome"), el("input", { class: "inp", id: "f-name", value: d.name, maxlength: "80", placeholder: d.type === "evento" ? "Ex.: Comprar presente" : "Ex.: Lavar toalhas", oninput: e => d.name = e.target.value }))),
+        picker ? el("div", { class: "fld" }, emojiPicker(EMOJIS, d.emoji, e => { d.emoji = e; picker = false; draw(); }),
+          el("div", { class: "trow" }, el("input", { class: "inp", id: "f-emoji", maxlength: "4", placeholder: "Ou cole outro emoji aqui", "aria-label": "Outro emoji", oninput: e => { const v = e.target.value.trim(); if (v) d.emoji = v; } }), el("button", { class: "btn sm", type: "button", onclick: () => { picker = false; draw(); } }, "Pronto"))) : null,
+        el("div", { class: "fld" }, el("label", { for: "f-desc" }, "Descrição"), el("textarea", { class: "inp", id: "f-desc", rows: "2", placeholder: "Opcional", oninput: e => d.desc = e.target.value }, d.desc || "")),
+        el("div", { class: "fld" }, el("label", { for: "f-cat" }, "Categoria"),
+          el("select", { class: "inp", id: "f-cat", onchange: e => { if (e.target.value === "__new") { newCat = { e: "🏷️", n: "" }; } else { d.cat = e.target.value; newCat = null; } draw(); } },
+            cats().map(c => el("option", { value: c.id, selected: !newCat && d.cat === c.id }, `${c.e} ${c.n}`)), el("option", { value: "__new", selected: !!newCat }, "➕ Nova categoria…"))),
+        newCat ? el("div", { class: "trow" }, el("input", { class: "inp", id: "f-ncat-e", maxlength: "4", value: newCat.e, style: "flex:0 0 64px;text-align:center", "aria-label": "Emoji da categoria", oninput: e => newCat.e = e.target.value }), el("input", { class: "inp", id: "f-ncat-n", placeholder: "Nome da nova categoria", maxlength: "40", value: newCat.n, oninput: e => newCat.n = e.target.value })) : null,
+        el("div", { class: "fld" }, el("span", { class: "lb" }, "Frequência"),
+          el("div", { class: "chipsel" }, FREQS.map(([k, n]) => el("button", { type: "button", "aria-pressed": String(d.freq === k), onclick: () => { d.freq = k; draw(); } }, n)))),
+        d.freq === "custom" ? el("div", { class: "fld" }, el("span", { class: "lb" }, "Repetir"),
+          el("div", { class: "inline" }, "A cada", el("input", { class: "inp", id: "f-every", type: "number", min: "1", max: "60", value: d.every || 2, "aria-label": "Intervalo", oninput: e => d.every = Math.max(1, parseInt(e.target.value) || 1) }),
+            el("select", { class: "inp", id: "f-unit", style: "flex:0 1 130px", "aria-label": "Unidade", onchange: e => { d.unit = e.target.value; draw(); } }, el("option", { value: "dias", selected: d.unit !== "semanas" }, "dias"), el("option", { value: "semanas", selected: d.unit === "semanas" }, "semanas")))) : null,
+        el("div", { class: "grid2" },
+          el("div", { class: "fld" }, el("label", { for: "f-date" }, d.freq === "once" ? "Dia, mês e ano" : "Começa em"), el("input", { class: "inp", id: "f-date", type: "date", value: d.date || td, onchange: e => d.date = e.target.value || td })),
+          d.freq === "monthly" ? el("div", { class: "fld" }, el("label", { for: "f-dom" }, "Dia do mês"), el("input", { class: "inp", id: "f-dom", type: "number", min: "1", max: "31", value: d.dom || 1, oninput: e => d.dom = Math.min(31, Math.max(1, parseInt(e.target.value) || 1)) })) : null),
+        el("div", { class: "fld" }, el("span", { class: "lb" }, usesSlots ? "Dias e horários" : "Horários"),
+          usesSlots ? slotList(d) : timeList(d, "times"),
+          d.freq === "daily" ? el("p", { class: "hint" }, "Pode ter mais de um horário no mesmo dia, como a louça às 08:00, 13:00 e 19:00.") : null,
+          usesSlots ? el("p", { class: "hint" }, "Ex.: lavar roupa na terça e no sábado, cada um com seu horário.") : null),
+        sw("Lembrete no horário", d.remind !== false, v => d.remind = v, "f-remind"),
+        !isNew ? sw("Pausar esta rotina", !!d.paused, v => d.paused = v, "f-paused") : null,
+        err,
+        el("div", { class: "actions" },
+          isNew ? null : delButton("Excluir", () => { saveTasks(S.tasks.filter(x => x.id !== d.id)); close(); toast("Tarefa excluída"); }),
+          el("div", { class: "r" }, el("button", { class: "btn", type: "button", onclick: close }, "Cancelar"), el("button", { class: "btn primary", type: "button", onclick: save }, "Salvar")))
+      );
+    }
+    function save() {
+      d.name = (d.name || "").trim();
+      if (!d.name) { err.textContent = "Dê um nome para a tarefa."; $("#f-name").focus(); return; }
+      const usesSlots = d.freq === "weekly" || (d.freq === "custom" && d.unit === "semanas");
+      if (usesSlots) {
+        const seen = new Set(); d.slots = sortedSlots(d.slots).filter(s => { const k = s.d + "|" + (s.t || ""); if (seen.has(k)) return false; seen.add(k); return true; });
+        if (!d.slots.length) { err.textContent = "Escolha pelo menos um dia da semana."; return; }
+      }
+      d.times = [...new Set((d.times || []).filter(Boolean))].sort();
+      if (d.freq === "monthly" && !d.dom) d.dom = parse(d.date).getDate();
+      if (newCat) {
+        const n = (newCat.n || "").trim(); if (!n) { err.textContent = "Dê um nome para a nova categoria."; return; }
+        const c = { id: newId("c"), e: (newCat.e || "🏷️").trim() || "🏷️", n }; saveSettings({ cats: [...(settings().cats || []), c] }); d.cat = c.id;
+      }
+      const { _draw, ...clean } = d;
+      if (!usesSlots) clean.slots = [];
+      saveTasks(isNew ? [...S.tasks, clean] : S.tasks.map(x => x.id === clean.id ? clean : x));
+      close(); toast(isNew ? `${clean.emoji} ${clean.name} criada` : "Alterações salvas 🌷");
+    }
+    draw();
+  });
+}
+
+function openSupp(s) {
+  const isNew = !s;
+  const d = s ? clone(s) : { id: newId("s"), name: "", emoji: "💊", time: "08:00", days: [1, 2, 3, 4, 5], note: "", remind: true, active: true, start: today() };
+  let picker = false;
+  openSheet(isNew ? "Novo suplemento" : "Editar suplemento", (body, close) => {
+    const err = el("div", { class: "err", role: "alert" });
+    function draw() {
+      put(body,
+        el("h2", {}, isNew ? "Novo suplemento" : "Editar suplemento"),
+        el("div", { class: "namerow" },
+          el("button", { class: "emobtn", type: "button", "aria-label": `Emoji: ${d.emoji}. Trocar`, onclick: () => { picker = !picker; draw(); } }, d.emoji),
+          el("div", { class: "fld" }, el("label", { for: "s-name" }, "Nome"), el("input", { class: "inp", id: "s-name", value: d.name, maxlength: "60", placeholder: "Ex.: Vitamina D", oninput: e => d.name = e.target.value }))),
+        picker ? emojiPicker(SUPP_EMOJIS, d.emoji, e => { d.emoji = e; picker = false; draw(); }) : null,
+        el("div", { class: "fld" }, el("label", { for: "s-time" }, "Horário"), el("input", { class: "inp", id: "s-time", type: "time", value: d.time, oninput: e => d.time = e.target.value })),
+        el("div", { class: "fld" }, el("span", { class: "lb" }, "Dias da semana"),
+          el("div", { class: "chipsel days" }, WEEK_ORDER.map(w => el("button", { type: "button", "aria-pressed": String(d.days.includes(w)), "aria-label": WDM[w], onclick: () => { d.days = d.days.includes(w) ? d.days.filter(x => x !== w) : [...d.days, w]; draw(); } }, WD[w]))),
+          el("div", { class: "inline" },
+            el("button", { class: "btn ghost sm", type: "button", onclick: () => { d.days = [1, 2, 3, 4, 5]; draw(); } }, "Seg a sex"),
+            el("button", { class: "btn ghost sm", type: "button", onclick: () => { d.days = [0, 1, 2, 3, 4, 5, 6]; draw(); } }, "Todos os dias"))),
+        el("div", { class: "fld" }, el("label", { for: "s-note" }, "Observação"), el("textarea", { class: "inp", id: "s-note", rows: "2", placeholder: "Ex.: tomar depois do café", oninput: e => d.note = e.target.value }, d.note || "")),
+        sw("Lembrete no horário", d.remind !== false, v => d.remind = v, "s-remind"),
+        sw("Ativo", d.active !== false, v => d.active = v, "s-active"),
+        err,
+        el("div", { class: "actions" },
+          isNew ? null : delButton("Excluir", () => { saveSupps(S.supps.filter(x => x.id !== d.id)); close(); toast("Suplemento excluído"); }),
+          el("div", { class: "r" }, el("button", { class: "btn", type: "button", onclick: close }, "Cancelar"), el("button", { class: "btn primary", type: "button", onclick: save }, "Salvar"))));
+    }
+    function save() {
+      d.name = (d.name || "").trim();
+      if (!d.name) { err.textContent = "Dê um nome para o suplemento."; return; }
+      if (!d.days.length) { err.textContent = "Escolha pelo menos um dia."; return; }
+      saveSupps(isNew ? [...S.supps, d] : S.supps.map(x => x.id === d.id ? d : x));
+      close(); toast(isNew ? `${d.emoji} ${d.name} adicionado` : "Alterações salvas 🌷");
+    }
+    draw();
+  });
+}
+
+function openShopItem(p) {
+  const d = clone(p);
+  openSheet("Editar produto", (body, close) => {
+    const err = el("div", { class: "err", role: "alert" });
+    function draw() {
+      put(body,
+        el("h2", {}, "Produto"),
+        el("div", { class: "fld" }, el("label", { for: "p-name" }, "Nome"), el("input", { class: "inp", id: "p-name", value: d.name, maxlength: "80", oninput: e => d.name = e.target.value })),
+        el("div", { class: "fld" }, el("label", { for: "p-note" }, "Observação"), el("input", { class: "inp", id: "p-note", value: d.note || "", maxlength: "120", placeholder: "Ex.: comprar 2 caixas", oninput: e => d.note = e.target.value })),
+        el("div", { class: "fld" }, el("span", { class: "lb" }, "Situação"),
+          el("div", { class: "chipsel" }, SHOP_ST.map(([k, n]) => el("button", { type: "button", "aria-pressed": String(d.status === k), onclick: () => { d.status = k; draw(); } }, n)))),
+        err,
+        el("div", { class: "actions" },
+          delButton("Excluir", () => { saveShop(S.shop.filter(x => x.id !== d.id)); close(); toast("Produto excluído"); }),
+          el("div", { class: "r" }, el("button", { class: "btn", type: "button", onclick: close }, "Cancelar"), el("button", { class: "btn primary", type: "button", onclick: () => {
+            d.name = d.name.trim(); if (!d.name) { err.textContent = "Dê um nome para o produto."; return; }
+            saveShop(S.shop.map(x => x.id === d.id ? { ...d, updated: Date.now() } : x)); close(); toast("Produto salvo");
+          } }, "Salvar"))));
+    }
+    draw();
+  });
+}
+
+/* ===================== Lembretes ===================== */
+const fired = new Set(); const snoozed = {};
+let audioCtx = null;
+function chime() {
+  if (!ui.interacted || settings().sound === false) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = audioCtx.currentTime;
+    [[784, 0], [1047, 0.18]].forEach(([f, dt]) => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type = "sine"; o.frequency.value = f;
+      g.gain.setValueAtTime(0, t0 + dt); g.gain.linearRampToValueAtTime(0.12, t0 + dt + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dt + 0.9);
+      o.connect(g); g.connect(audioCtx.destination); o.start(t0 + dt); o.stop(t0 + dt + 1);
+    });
+  } catch {}
+}
+function remTitle(it) { return it.kind === "s" ? "🔔 Hora do suplemento!" : `🔔 Hora de ${it.name.charAt(0).toLowerCase() + it.name.slice(1)}!`; }
+function showReminder(it) {
+  const root = $("#remRoot");
+  const close = () => root.replaceChildren();
+  root.replaceChildren(el("div", { class: "reminder", role: "alertdialog", "aria-label": remTitle(it) },
+    el("p", { class: "rt" }, remTitle(it)),
+    el("div", { class: "rb" }, el("span", { class: "e", "aria-hidden": "true" }, it.emoji), el("div", {}, el("b", {}, it.name), el("div", { class: "muted", style: "font-size:13.5px" }, it.time))),
+    el("div", { class: "ra" },
+      el("button", { class: "btn ghost sm", type: "button", onclick: close }, "Fechar"),
+      el("button", { class: "btn sm", type: "button", onclick: () => { snoozed[it.key] = toMin(nowHM()) + 10; close(); toast("Lembro de novo em 10 minutos"); } }, "Daqui a 10 min"),
+      el("button", { class: "btn primary sm", type: "button", onclick: () => { if (!isDone(it)) toggle(it); close(); } }, "Concluir"))));
+  chime();
+  try { if (typeof Notification !== "undefined" && Notification.permission === "granted") new Notification(remTitle(it), { body: `${it.emoji} ${it.name} · ${it.time}` }); } catch {}
+}
+function tick() {
+  if (CAP || !S.settings || settings().notif === false) return;
+  const td = today(), nm = toMin(nowHM()), lead = settings().lead || 0;
+  for (const it of itemsFor(td)) {
+    if (!it.remind || !it.time || isDone(it)) continue;
+    const at = snoozed[it.key] != null ? snoozed[it.key] : toMin(it.time) - lead;
+    const k = it.key + "@" + at;
+    if (nm >= at && nm <= at + 2 && !fired.has(k)) { fired.add(k); showReminder(it); break; }
+  }
+}
+
+/* ===================== Android: notificações e botão voltar ===================== */
+const Native = {
+  timer: null, perm: null, exact: null,
+  reschedule() { if (!CAP) return; clearTimeout(this.timer); this.timer = setTimeout(() => this.run().catch(() => {}), 1200); },
+  async ensureChannel() {
+    const LN = NP("LocalNotifications"); if (!LN || this._ch) return; this._ch = true;
+    try { await LN.createChannel({ id: "lembretes", name: "Lembretes da casa", description: "Avisos no horário das tarefas", importance: 5, visibility: 1, vibration: true, lights: true, lightColor: "#F3A7BF" }); } catch (e) {}
+  },
+  async status() {
+    const LN = NP("LocalNotifications"); if (!LN) return;
+    try { this.perm = (await LN.checkPermissions()).display; } catch (e) {}
+    try { this.exact = (await LN.checkExactNotificationSetting()).exact_alarm; } catch (e) { this.exact = null; }
+  },
+  async ask() {
+    const LN = NP("LocalNotifications"); if (!LN) return;
+    try { this.perm = (await LN.requestPermissions()).display; } catch (e) {}
+    this.reschedule(); schedule();
+  },
+  async askExact() {
+    const LN = NP("LocalNotifications"); if (!LN) return;
+    try { this.exact = (await LN.changeExactNotificationSetting()).exact_alarm; } catch (e) {}
+    this.reschedule(); schedule();
+  },
+  async run() {
+    const LN = NP("LocalNotifications"); if (!LN || !S.settings) return;
+    await this.ensureChannel();
+    try { const p = await LN.getPending(); if (p && p.notifications && p.notifications.length) await LN.cancel({ notifications: p.notifications.map(n => ({ id: n.id })) }); } catch (e) {}
+    if (settings().notif === false) return;
+    const lead = settings().lead || 0, now = Date.now(), list = [];
+    for (let i = 0; i < 14 && list.length < 300; i++) {
+      const d = addDays(today(), i);
+      for (const it of itemsFor(d)) {
+        if (!it.remind || !it.time || isDone(it)) continue;
+        const [y, m, dd] = d.split("-").map(Number); const mins = toMin(it.time) - lead;
+        const at = new Date(y, m - 1, dd, 0, 0, 0); at.setMinutes(mins);
+        if (at.getTime() <= now + 5000) continue;
+        list.push({ id: list.length + 1, title: remTitle(it), body: `${it.emoji} ${it.name} · ${it.time}`, channelId: "lembretes", schedule: { at: at.toISOString(), allowWhileIdle: true }, extra: { key: it.key } });
+      }
+    }
+    if (list.length) { try { await LN.schedule({ notifications: list }); } catch (e) {} }
+  },
+  init() {
+    if (!CAP) return;
+    const A = NP("App");
+    if (A) {
+      A.addListener("backButton", () => {
+        if (sheetClose) { sheetClose(); return; }
+        if (ui.tab === "mais" && ui.more !== "menu") { ui.more = "menu"; render(); return; }
+        if (ui.tab !== "inicio") { ui.tab = "inicio"; render(); window.scrollTo(0, 0); return; }
+        A.exitApp();
+      });
+      A.addListener("resume", () => { ui.lastDay = today(); store.ensureLogs(); render(); this.status().then(schedule); this.reschedule(); });
+    }
+    this.status().then(() => { if (this.perm && this.perm !== "granted" && this.perm !== "denied") this.ask(); schedule(); });
+    this.reschedule();
+  }
+};
+
+/* ===================== Renderização ===================== */
+let raf = 0;
+function schedule() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; render(); }); }
+const allReady = () => ready.tasks && ready.supps && ready.shop && ready.settings;
+function render() {
+  const app = $("#app");
+  // preserva o que estiver sendo digitado
+  const act = document.activeElement && app.contains(document.activeElement) ? document.activeElement.id : null;
+  const vals = {}; app.querySelectorAll("input[id],textarea[id]").forEach(i => { if (i.value) vals[i.id] = i.value; });
+  document.querySelectorAll("nav.tabbar .tb").forEach(b => b.toggleAttribute("aria-current", false) || (b.dataset.tab === ui.tab && b.setAttribute("aria-current", "page")));
+  const nav = document.querySelector("nav.tabbar");
+  if (!allReady()) { app.replaceChildren(el("div", { class: "loading" }, "Abrindo sua agenda…")); nav.hidden = true; return; }
+  if (!S.settings) { app.replaceChildren(...viewWelcome()); nav.hidden = true; return; }
+  nav.hidden = false;
+  const v = ui.tab === "calendario" ? viewCal() : ui.tab === "compras" ? viewShop() : ui.tab === "suplementos" ? viewSupps() : ui.tab === "mais" ? viewMore() : viewHome();
+  app.replaceChildren(...[v].flat(3).filter(Boolean));
+  for (const [id, val] of Object.entries(vals)) { const i = document.getElementById(id); if (i && app.contains(i) && !i.value) i.value = val; }
+  if (act) { const a = document.getElementById(act); if (a) { a.focus(); try { a.setSelectionRange(a.value.length, a.value.length); } catch {} } }
+}
+
+document.querySelectorAll("nav.tabbar .tb").forEach(b => b.addEventListener("click", () => {
+  ui.tab = b.dataset.tab; if (ui.tab === "mais") ui.more = "menu";
+  if (ui.tab === "calendario") { ui.cal.sel = today(); ui.cal.cur = today(); }
+  render(); window.scrollTo(0, 0);
+}));
+$("#plusBtn").addEventListener("click", () => openTask(null, ui.tab === "calendario" ? { date: ui.cal.sel } : null));
+document.addEventListener("pointerdown", () => { ui.interacted = true; }, { once: true });
+document.addEventListener("keydown", () => { ui.interacted = true; }, { once: true });
+setInterval(() => {
+  const td = today();
+  if (td !== ui.lastDay) { ui.lastDay = td; store.ensureLogs(); }
+  tick();
+  const typing = document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  if (!typing && !sheetClose && (ui.tab === "inicio" || ui.tab === "calendario")) render();
+}, 20000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) { tick(); schedule(); } });
+
+render();
+store.init().then(() => { Native.init(); setTimeout(tick, 1500); });
+})();
+
+</script>
+</body></html>
