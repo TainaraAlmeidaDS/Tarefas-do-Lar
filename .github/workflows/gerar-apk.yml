@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Baixar os arquivos do app
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Organizar os arquivos nas pastas
         run: |
@@ -27,18 +27,18 @@ jobs:
           ls -R www assets android-extra scripts
 
       - name: Preparar Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
 
       - name: Preparar Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 21
 
-      - name: Preparar Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Conferir Android SDK do GitHub
+        run: echo "ANDROID_HOME=$ANDROID_HOME" && ls "$ANDROID_HOME/platforms" | tail -3
 
       - name: Instalar dependências
         run: npm install --no-audit --no-fund
