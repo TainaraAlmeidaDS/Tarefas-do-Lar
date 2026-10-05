@@ -1,0 +1,75 @@
+name: Gerar APK
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar os arquivos do app
+        uses: actions/checkout@v4
+
+      - name: Organizar os arquivos nas pastas
+        run: |
+          shopt -s nullglob
+          mkdir -p www/fonts assets android-extra scripts
+          for f in *.woff2; do mv "$f" www/fonts/; done
+          [ -f index.html ] && mv index.html www/ || true
+          for f in icon-*.png splash*.png; do mv "$f" assets/; done
+          for f in ic_stat_casa.xml tarefas.keystore; do [ -f "$f" ] && mv "$f" android-extra/ || true; done
+          [ -f prepare-android.js ] && mv prepare-android.js scripts/ || true
+          ls -R www assets android-extra scripts
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Preparar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar dependências
+        run: npm install --no-audit --no-fund
+
+      - name: Criar projeto Android
+        run: |
+          npx cap add android
+          npx @capacitor/assets generate --android --iconBackgroundColor '#FDE2EB' --splashBackgroundColor '#FFF9FB' --splashBackgroundColorDark '#FFF9FB'
+          node scripts/prepare-android.js
+          npx cap sync android
+
+      - name: Compilar o APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Renomear o APK
+        run: cp android/app/build/outputs/apk/release/app-release.apk TarefasDaCasa.apk
+
+      - name: Guardar o APK nesta execução
+        uses: actions/upload-artifact@v4
+        with:
+          name: TarefasDaCasa-apk
+          path: TarefasDaCasa.apk
+
+      - name: Publicar em Releases (para baixar no celular)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Tarefas da Casa 1.0.${{ github.run_number }}
+          body: Baixe o arquivo TarefasDaCasa.apk abaixo e abra no celular Android para instalar.
+          files: TarefasDaCasa.apk
+          make_latest: true
